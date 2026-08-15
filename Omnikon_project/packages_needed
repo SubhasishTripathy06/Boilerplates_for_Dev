@@ -1,0 +1,7 @@
+ejs
+express
+mongoose
+bcrypt
+jsonwebtoken
+nodemon -g
+multer
