@@ -1,13 +1,3 @@
-so what do we need now ?
 
-we have a jwt token but our jwt token is not in the safest place now
-we would also need a logout route
-we also need a middleware of sorts which will like check if the user is logged in or not
-we also have to do some erro handling as well
-
-so the main goal is to like make a boiler plate which i will use
-not only in the omnikon hackathon but also in otherhackathons as well
-ik i could have built this easily using chatgpt but making it myself
-makes me remember and understand it well
-so yeah see yaah in the next session
+we also have to do some error handling as well
 

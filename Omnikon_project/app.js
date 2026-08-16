@@ -4,12 +4,16 @@ const app=express();
 const userModel=require('./models/user.js')
 const bcrypt=require('bcrypt');
 const jwt=require('jsonwebtoken')
+const auth= require('./services/auth.js');
+const cookieParser = require('cookie-parser');
+// almost forgot the cookie-parser
+
 
 // parsers
-
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.set('view engine','ejs');
+app.use(cookieParser());
 
 
 // establishing routes
@@ -32,6 +36,7 @@ app.post('/create',async (req,res)=>{
     });
     res.redirect('/login');
 })
+
 app.get('/login',(req,res)=>{
     res.render('login.ejs');
 })
@@ -40,7 +45,7 @@ app.post('/check',async (req,res)=>{
     let user=await userModel.findOne({email});
     bcrypt.compare(password, user.password, function(err, result) {
         if(result){
-            let cookie=jwt.sign({email:email,password:password},'SHH');
+            let cookie=auth.setuser(user);
             res.cookie("token",cookie);
             res.redirect('/profile');
         } 
@@ -49,10 +54,33 @@ app.post('/check',async (req,res)=>{
         }
     });
 })
-app.get('/profile',(req,res)=>{
+app.get('/profile',isloggedin,(req,res)=>{
     res.render('profile.ejs');
 })
-app.listen(3000);
+app.get('/logout',(req,res)=>{
+    res.cookie("token","");
+    res.redirect("/login");
+})
 
-// we still haven't made the middle ware to check is loggedin or not
-// we will do that in a while
+function isloggedin(req, res, next) {
+    const token = req.cookies.token;
+
+    if (!token || (token==="")) {
+        return res.status(401).json({
+            message: "Access denied. No token provided."
+        });
+    }
+
+    const decoded = auth.getuser(token);
+
+    if (!decoded) {
+        return res.status(403).json({
+            message: "Invalid or expired token."
+        });
+    }
+
+    req.user = decoded;
+    next();
+}
+
+app.listen(3000);
